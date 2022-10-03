@@ -1,0 +1,73 @@
+{
+  "device":  "Geotick",
+  "dump_root": "/8T1/dumps/gnss/logs",
+  "host": "192.168.1.55",
+  "port": 5500,
+  "SYNC_1": "0xB5",
+  "SYNC_2": "0x62",
+  "CRC_MASK": "0x00FF",
+  "MESSAGE_CLASS_IDS": {
+    "NAV": "0x01",
+    "RXM": "0x02",
+    "INF": "0x04",
+    "ACK": "0x05",
+    "CFG": "0x06",
+    "UPD": "0x09",
+    "MON": "0x0A",
+    "TIM": "0x0D",
+    "MGA": "0x13",
+    "LOG": "0x21",
+    "SEC": "0x27",
+    "RTCM_out": "0xF5"
+  },
+  "UBX_MESSAGE_IDS":{
+    "ACK": {"ACK": "0x01", "NAC": "0x00"},
+    "CFG": {"ANT":  "0x13", "CFG": "0x09", "GEOFENCE": "0x69", "GNSS": "0x3E", "MSG": "0x01", "NAV5": "0x24", "NAVX5": "0x23", "ODO": "0x1E", "PRT": "0x00", "PWR": "0x57", "RATE": "0x08", "RST": "0x04", "TMODE3": "0x71"},
+    "MON": {"VER": "0x04"},
+    "NAV": {"CLOCK": "0x22", "DOP": "0x04", "EOE": "0x61", "GEOFENCE": "0x39", "HPPOSECEF":  "0x13", "HPPOSLLH": "0x14", "ODO": "0x09", "ORB": "0x34", "POSECEF": "0x01", "POSLLH":"0x02", "PYT": "0x07", "RELPOSNED": "0x3C", "RESETODO": "0x10", "SAT": "0x35", "SIG":  "0x43", "STATUS": "0x03", "SVIN": "0x3B", "TIMEBDS": "0x24", "TIMEGAL": "0x25", "TIMEGLO": "0x23", "TIMEGPS": "0x20", "TIMELS": "0x26", "TIMEUTC": "0x21", "VELECEF": "0x11", "VELNED":  "0x12"},
+    "RXM": {"PMREQ": "0x41", "RAWX": "0x15", "RLM": "0x59", "RTCM": "0x32", "SFRBX": "0x13"}
+  },
+  "RTCM_IDS": {
+    "input": {
+      "1001": "L1-only GPS RTK observations",
+      "1002": "Extended L1-only GPS RTK observations",
+      "1003": "L1/L2 GPS RTK observations",
+      "1004": "Extended L1/L2 GPS RTK observations",
+      "1005": "Stationary RTK reference station ARP",
+      "1006": "Stationary RTK reference station ARP with antenna height",
+      "1007": "Antenna descriptor",
+      "1009": "L1-only GLONASS RTK observations",
+      "1010": "Extended L1-only GLONASS RTK observations",
+      "1011": "L1/L2 GLONASS RTK observations",
+      "1012": "Extended L1/L2 GLONASS RTK observations",
+      "1033": "Receiver and antenna descriptors",
+      "1074": "GPS MSM4",
+      "1075": "GPS MSM5",
+      "1077": "GPS MSM7",
+      "1084": "GLONASS MSM4",
+      "1085": "GLONASS MSM5",
+      "1087": "GLONASS MSM7",
+      "1094": "Galileo MSM4",
+      "1095": "Galileo MSM5",
+      "1097": "Galileo MSM5",
+      "1124": "BeiDou MSM4",
+      "1125": "BeiDou MSM5",
+      "1127": "BeiDou MSM7",
+      "1230": "GLONASS code-phase biases",
+      "4072": "Station reference information (one of 2 subtypes)"
+    },
+    "output": {
+      "1005": "Stationary RTK reference station ARP",
+      "1074": "GPS MSM4",
+      "1077": "GPS MSM7",
+      "1084": "GLONASS MSM4",
+      "1087": "GLONASS MSM7",
+      "1094": "Galileo MSM4",
+      "1097": "Galileo MSM7",
+      "1124": "BeiDou MSM4",
+      "1127": "BeiDou MSM7",
+      "1230": "GLONASS code-phase biases",
+      "4072": "Reference station PVT (u-blox proprietary RTCM Message)/ Additional reference station information (u-blox proprietary RTCM Message)"
+    }
+  }
+}
