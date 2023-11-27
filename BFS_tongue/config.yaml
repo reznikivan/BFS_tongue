@@ -1,0 +1,19 @@
+mode: "Photo"
+mask: "/home/user/projects/BFS_tongue/data/masks/1586723920467 45.png"
+detections: "/home/user/projects/BFS_tongue/data/labels/1586723920467 45.txt"
+save_path: "/home/user/projects/BFS_tongue/data/results/1586723920467 45(1).jpg"
+
+size: [480, 270]
+
+y_limits: [0.0, 1]
+start: [0.5, 1.0]
+not_path_point: [0, 0, 0]
+
+show: True
+ratio: 1
+radius: 2
+thickness: 2
+
+
+
+  
