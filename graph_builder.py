@@ -22,92 +22,100 @@ def transform_to_grayscale(img):
     return img
 
 def is_path(elem):
-    res = (elem == config_data.not_path_point)
-    if not np.isscalar(res):
-        res_shape = res.shape[0] 
-        if (res_shape > 1):
-            res = False
-            for i in range (res_shape):
-                if elem[i] != config_data.not_path_point[i]:
-                    res = True
-                    break
-    return res
+    return not np.array_equal(elem, config_data.not_path_point)
 
 def update_wide(cluster, row, mask, w):
-    new_cluster = set([])
-    for p in cluster:
-        i = 1
-        while p + i < w and is_path(mask[row, p + i]) and not p + i in cluster:
-            new_cluster.add(p + i)
-            i += 1
-        i = 1
-        while p - i >= 0 and is_path(mask[row, p - i]) and not p - i in cluster:
-            new_cluster.add(p - i)
-            i += 1       
-    return cluster | new_cluster
+    left_boundary, right_boundary = cluster
 
-def dist(c1, c2):
-    dist = 10000
-    for p1 in c1:
-        for p2 in c2:
-            if abs(p1 - p2) < dist:
-                dist = abs(p1 - p2)
-    return dist
+    # Update right boundary
+    i = 1
+    while right_boundary + i < w and is_path(mask[row, right_boundary + i]):
+        i += 1
+    right_boundary += i - 1
+
+    # Update left boundary
+    i = 1
+    while left_boundary - i >= 0 and is_path(mask[row, left_boundary - i]):
+        i += 1       
+    left_boundary -= i - 1
+
+    return [left_boundary, right_boundary]
+
+def dist(cluster_1, cluster_2):
+    if cluster_1[1] < cluster_2[0]:
+        return cluster_2[0] - cluster_1[1]
+    if cluster_2[1] < cluster_1[0]:
+        return cluster_1[0] - cluster_2[1]
+    return 0
 
 def merge(clusters):
+    merged = []
+    clusters.sort(key=lambda x: x[0])  # Sort clusters based on their starting positions
+
     i = 0
     while i < len(clusters):
-        j = i + 1
-        while i < j and j < len(clusters) and j >= 0 and i >= 0:
-            if dist(clusters[i], clusters[j]) <= 1:
-                res_cluster = clusters[i] | clusters[j]
-                clusters.pop(i)
-                clusters.pop(j - 1)
-                clusters.append(res_cluster)
-                i -= 1
-                j -= 1
-            j += 1
+        curr_cluster = clusters[i]
+        while i < len(clusters) - 1 and dist(curr_cluster, clusters[i + 1]) <= 1:
+            curr_cluster = [min(curr_cluster[0], clusters[i + 1][0]), max(curr_cluster[1], clusters[i + 1][1])]
+            i += 1
+        merged.append(curr_cluster)
         i += 1
-    if len(clusters) == 2 and dist(clusters[0], clusters[1]) <= 1:
-        clusters[0] = clusters[0] | clusters[1]
-        clusters.pop(1)
-    return clusters
+
+    return merged
+
 
 def update_up(clusters, row, mask):
     up_clusters = []
+    new_cluster = False
     for cluster in clusters[row]:
-        for p in cluster:
-            if row >= 1:
-                if is_path(mask[row - 1, p]):
-                    up_clusters.append(set([p]))
+        p = cluster[0]
+        if row >= 1:
+            up_cluster = [p, p]
+            while p <= cluster[1]:
+                while p <= cluster[1] and not is_path(mask[row - 1, p]):
+                    p += 1
+                up_cluster[0] = p
+                while p <= cluster[1] and is_path(mask[row - 1, p]):
+                    new_cluster = True
+                    p += 1
+                up_cluster[1] = p - 1
+
+                if new_cluster:
+                    up_clusters.append(up_cluster)
+                    up_cluster = [p, p]
+                    new_cluster = False
+
     if len(up_clusters) > 0:
         clusters[row - 1] = merge(up_clusters)
     return clusters
 
-def not_in_all(clusters, p):
-    res = True
-    for cluster in clusters:
-        if p in cluster:
-            res = False
-            break
-    return res
-
 def update_down(clusters, row, start_y, mask):
     down_clusters = []
+    new_cluster = False
     for cluster in clusters[row]:
-        for p in cluster:
-            if row <= start_y - 1:
-                if is_path(mask[row + 1, p]) and not_in_all(clusters[row + 1], p):
-                    down_clusters.append(set([p]))
-    if len(down_clusters) > 0:
-        clusters[row + 1] += merge(down_clusters)
+        p = cluster[0]
+        if row < start_y:
+            down_cluster = [p, p]
+            while p <= cluster[1]:
+                while p <= cluster[1] and not is_path(mask[row + 1, p]):
+                    p += 1
+                down_cluster[0] = p
+                while p <= cluster[1] and is_path(mask[row + 1, p]):
+                    new_cluster = True
+                    p += 1
+                down_cluster[1] = p - 1
+
+                if new_cluster:
+                    down_clusters.append(down_cluster)
+                    down_cluster = [p, p]
+                    new_cluster = False
+
+        if len(down_clusters) > 0:
+            clusters[row + 1] = merge(down_clusters + clusters[row + 1])
     return clusters
 
 def center(cluster):
-    summ = 0
-    for p in cluster:
-        summ += p
-    return int (summ / len(cluster))
+    return (cluster[0] + cluster[1]) // 2
 
 def draw_clusters(image, clusters, start_y, end_y):
     res = image
@@ -140,7 +148,7 @@ def find_current_cluster(label, clusters):
     min_dist = 10000
     num = 0
     for i, cl in enumerate(clusters[center_label(label)[1]]):
-        d = dist({center_label(label)[0]}, cl)
+        d = dist([center_label(label)[0], center_label(label)[0]], cl)
         if d < min_dist:
             min_dist = d
             num = i
@@ -150,7 +158,7 @@ def find_splitted_paths(row, split, clusters):#TODO: change finding of main path
     num1, num2 = (0, 0)
     dists = dict()
     for i, cl in enumerate(clusters[row]):
-        dists[i] = dist({split}, cl)
+        dists[i] = dist([split, split], cl)
     dists = sorted(dists.items(), key = lambda x: x[1])
     num1, num2 = (dists[0][0], dists[1][0])
     start_cl = find_current_cluster((int(config_data.start[0] * config_data.size[0]), config_data.size[1] - 1, int(config_data.start[0] * config_data.size[0]), config_data.size[1] - 1), clusters)
@@ -229,10 +237,10 @@ if config_data.mode == "Photo" or config_data.mode == "Folder":
         for i in range (size[0]):
             clusters.append(None) 
 
-        clusters[start_y] = [set([start_x])]
+        clusters[start_y] = [[start_x, start_x]]
         row = start_y
         while row > 1 and clusters[row] != None:
-            for j in range(len(clusters[row])):
+            for j in range (len(clusters[row])):
                 clusters[row][j] = update_wide(clusters[row][j], row, mask, size[1])
             clusters = update_up(clusters, row, mask)
             row -= 1

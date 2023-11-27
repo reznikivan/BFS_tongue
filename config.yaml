@@ -1,12 +1,12 @@
 mode: "Photo"
-mask: "/home/user/projects/BFS_tongue/data/masks/1586723920467 45.png"
-detections: "/home/user/projects/BFS_tongue/data/labels/1586723920467 45.txt"
-save_path: "/home/user/projects/BFS_tongue/data/results/1586723920467 45(1).jpg"
+mask: "/1T/Results/data/masks/1586379826470 60.png"
+detections: "/1T/Results/data/labels/1586379826470 60.txt"
+save_path: "/1T/Results/data/results/1586379826470 60(2).jpg"
 
 size: [480, 270]
 
 y_limits: [0.0, 1]
-start: [0.5, 1.0]
+start: [0.7, 1.0]
 not_path_point: [0, 0, 0]
 
 show: True
